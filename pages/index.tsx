@@ -10,12 +10,12 @@ const ethers = require("ethers");
 
 const Home: NextPage = () => {
   const [ContractAddress,SetContractAddress] = useState<string>("");
-  const [Slot,SetSlot] = useState<number | null>();
+  const [Slot,SetSlot] = useState<string | null>();
   const [Type,SetType] = useState< string >();
   const [Result,SetResult] = useState<number | string > ();
   const provider = useProvider();
   
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event:any) => {
     SetType(event.target.value)
   }
   
@@ -28,7 +28,7 @@ const Home: NextPage = () => {
       />
       <Input
         placeholder='Slot'
-        value = {Slot}
+        value = {Slot!}
         onChange= {e => SetSlot(e.target.value)}
       />
       <Select
@@ -38,7 +38,6 @@ const Home: NextPage = () => {
     >
       <option value='address' >Address</option>
       <option value='uint'> uint</option>
-      {/* <option value='option3'>Option 3</option> */}
       </Select>
       <Button
         onClick={async() =>{
