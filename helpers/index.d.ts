@@ -1,3 +1,0 @@
-type value = {
-    string | null
-}
