@@ -1,0 +1,16 @@
+{
+  "name": "sloot",
+  "version": "1.0.0",
+  "description": "sloot backend ",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "author": "supernovahs.eth",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "mongodb": "^4.11.0",
+    "node-cron": "^3.0.2"
+  }
+}
