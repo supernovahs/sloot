@@ -14,7 +14,8 @@ const Home: NextPage = () => {
   const [Type,SetType] = useState< string >();
   const [Result,SetResult] = useState<number | string > ();
   const provider = useProvider();
-  
+
+
   const handleChange = (event:any) => {
     SetType(event.target.value)
   }
