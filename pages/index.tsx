@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useProvider } from 'wagmi'
 import { Select } from '@chakra-ui/react';
 const ethers = require("ethers");
-
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL_SLOOT;
 
 const Home: NextPage = () => {
   const [ContractAddress,SetContractAddress] = useState<string>("");
@@ -14,7 +14,6 @@ const Home: NextPage = () => {
   const [Type,SetType] = useState< string >();
   const [Result,SetResult] = useState<number | string > ();
   const provider = useProvider();
-
 
   const handleChange = (event:any) => {
     SetType(event.target.value)
@@ -59,6 +58,19 @@ const Home: NextPage = () => {
             SetResult(ethers.BigNumber.from(decodedval[0]).toString());
             console.log("decodedval",ethers.BigNumber.from(decodedval[0]).toString());
           }
+
+          const {status} = await fetch(`${BACKEND_URL}post`,{
+            method:"POST",
+            headers:{"Content-Type": "application/json"},
+            body: JSON.stringify({
+              Result,
+              ContractAddress,
+              Slot,
+              Type
+            })
+          })
+          console.log("status",status);
+
         }}
       >
         Go

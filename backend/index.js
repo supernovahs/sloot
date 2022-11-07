@@ -1,12 +1,22 @@
-const cron = require("node-cron");
-const { MongoClient } = require("mongodb");
-const { join } = require("path");
-const ethers = require("ethers");
-const nodemailer = require('nodemailer');
-require('dotenv').config();
+// ***************************************************************
+// ************************* BACKEND *****************************
+// ***************************************************************
+import cors from "cors";
+import express, { json } from "express";
+import { schedule } from "node-cron";
+import { MongoClient } from "mongodb";
+import { join } from "path";
+import { providers, BigNumber, utils } from "ethers";
+import { createTransport } from 'nodemailer';
+import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+dotenv.config();
+const port = process.env.PORT || 49899;
+const app = express();
+app.use(cors());
+app.use(json());
 
-const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_MAINNET);
-var transporter = nodemailer.createTransport({
+const provider = new providers.JsonRpcProvider(process.env.RPC_MAINNET);
+var transporter = createTransport({
     service: 'gmail',
     auth: {
       user: process.env.EMAIL,
@@ -16,9 +26,34 @@ var transporter = nodemailer.createTransport({
 // ...
 
 // Schedule tasks to be run on the server.
-cron.schedule('* * * * *', function() {
+schedule('0 4 * * *', function() {
     update();
   });
+
+app.post("/post",async(req,res)=>{
+    const {previous,address,slot,type} = req.body;
+    console.log(`previous ${previous} address ${address} slot ${slot} type ${type}`);
+    // New DB 
+
+})
+
+app.post("/remove",async(req,res)=>{
+    const {previous,address,slot,type} = req.body;
+    console.log(`previous ${previous} address ${address} slot ${slot} type ${type}`);
+
+    // New DB 
+})
+
+app.post("/replace",async(req,res)=>{
+    const {previous,address,slot,type} = req.body;
+    console.log(`previous ${previous} address ${address} slot ${slot} type ${type}`);
+
+    // New DB 
+})
+
+app.listen(port, () => {
+    // console.log("Started to listen  ",server);
+})
 
 const update = async () => {
     console.log("process",process.env.DATABASE_URI);
@@ -60,7 +95,6 @@ const update = async () => {
                       console.log('Email successfully sent!');
                     }
                   });
-        
             }
         }
      
@@ -70,17 +104,16 @@ const update = async () => {
 update();
 
 const UpdateSlot = async (previous,address,slot,Type) =>{
-    console.log("address",address);
-    let res = await provider.getStorageAt(address,ethers.BigNumber.from(slot).toHexString());
+    let res = await provider.getStorageAt(address,BigNumber.from(slot).toHexString());
+
     if(Type == "address"){
-        console.log("address ok");
-        let z = ethers.utils.defaultAbiCoder.decode(["address"],res);
+        let z = utils.defaultAbiCoder.decode(["address"],res);
         console.log("z",z);
         return previous ===  z[0] ? 0 : z[0]; 
     }
     if(Type == "uint"){
-        let z = ethers.utils.defaultAbiCoder.decode(["uint"],res);
-        return previous ===  (ethers.BigNumber.from(z[0]).toString()) ? 0 : (ethers.BigNumber.from(z[0]).toString());
+        let z = utils.defaultAbiCoder.decode(["uint"],res);
+        return previous ===  (BigNumber.from(z[0]).toString()) ? 0 : (BigNumber.from(z[0]).toString());
     }
 }
 
