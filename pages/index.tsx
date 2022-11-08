@@ -14,11 +14,12 @@ const Home: NextPage = () => {
   const [Type,SetType] = useState< string >();
   const [Result,SetResult] = useState<number | string > ();
   const provider = useProvider();
-
+  const [Processing, SetProcessing] = useState<boolean>(false);
+  const [email,SetEmail] = useState<string>();
   const handleChange = (event:any) => {
     SetType(event.target.value)
   }
-  
+
   return (
     <div>
       <Input
@@ -39,8 +40,14 @@ const Home: NextPage = () => {
       <option value='address' >Address</option>
       <option value='uint'> uint</option>
       </Select>
+      <Input
+        placeholder='Email address'
+        value = {email}
+        onChange= {e => SetEmail(e.target.value)}
+      />
       <Button
         onClick={async() =>{
+          SetProcessing(!Processing);
           console.log("Type",Type);
           console.log("provider",provider);
           console.log("contractaddress",ContractAddress);
@@ -50,15 +57,17 @@ const Home: NextPage = () => {
           if(Type == "address"){
 
             const decodedval = ethers.utils.defaultAbiCoder.decode(["address"],a);
-            SetResult(decodedval);
+            SetResult(decodedval[0]);
             console.log("decodedvalue",decodedval);
+            console.log("Contractaddress",ContractAddress);
+            console.log("result",Result);
           }
-          else if (Type == "uint"){
+           if (Type == "uint"){
             const decodedval = ethers.utils.defaultAbiCoder.decode(["uint"],a);
             SetResult(ethers.BigNumber.from(decodedval[0]).toString());
             console.log("decodedval",ethers.BigNumber.from(decodedval[0]).toString());
           }
-
+          console.log("Result",Result,"COntract",ContractAddress,"slot",Slot,"type",Type);
           const {status} = await fetch(`${BACKEND_URL}post`,{
             method:"POST",
             headers:{"Content-Type": "application/json"},
@@ -66,16 +75,16 @@ const Home: NextPage = () => {
               Result,
               ContractAddress,
               Slot,
-              Type
+              Type,
+              email
             })
           })
           console.log("status",status);
-
+          SetProcessing(!Processing);
         }}
       >
         Go
       </Button>
-      <h2>Result</h2>
       <h4>{Result}</h4>
     </div>
   );

@@ -2,18 +2,17 @@
 // ************************* BACKEND *****************************
 // ***************************************************************
 import cors from "cors";
-import express, { json } from "express";
+import express from "express";
 import { schedule } from "node-cron";
 import { MongoClient } from "mongodb";
-import { join } from "path";
 import { providers, BigNumber, utils } from "ethers";
 import { createTransport } from 'nodemailer';
-import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+import * as dotenv from 'dotenv';
 dotenv.config();
-const port = process.env.PORT || 49899;
+const port =process.env.PORT || 49899;
 const app = express();
 app.use(cors());
-app.use(json());
+app.use(express.json());
 
 const provider = new providers.JsonRpcProvider(process.env.RPC_MAINNET);
 var transporter = createTransport({
@@ -26,22 +25,36 @@ var transporter = createTransport({
 // ...
 
 // Schedule tasks to be run on the server.
-schedule('0 4 * * *', function() {
+schedule('0,15,30,45 * * * *', function() {
     update();
   });
 
 app.post("/post",async(req,res)=>{
-    const {previous,address,slot,type} = req.body;
-    console.log(`previous ${previous} address ${address} slot ${slot} type ${type}`);
+    const previous = req.body.Result;
+    const ContractAddress = req.body.ContractAddress;
+    const slot = req.body.Slot;
+    const type = req.body.Type;
+    const email = req.body.email;
+    console.log(`previous ${previous} address ${ContractAddress} slot ${slot} type ${type}`);
     // New DB 
+    const uri = process.env.DATABASE_URI;
+    const client = new MongoClient(uri);
+    const database = client.db('sloot');
+    const fields = database.collection('slot');
+    var fld = {email:email,address:ContractAddress,slot:slot,previous:previous,type:type}
+    fields.insertOne(fld, function(err,res) {
+        if (err) throw err;
+        console.log("Added new Entry!!");
+    })
 
 })
 
 app.post("/remove",async(req,res)=>{
     const {previous,address,slot,type} = req.body;
-    console.log(`previous ${previous} address ${address} slot ${slot} type ${type}`);
+    // console.log(`previous ${previous} address ${address} slot ${slot} type ${type}`);
 
     // New DB 
+   
 })
 
 app.post("/replace",async(req,res)=>{
@@ -52,7 +65,7 @@ app.post("/replace",async(req,res)=>{
 })
 
 app.listen(port, () => {
-    // console.log("Started to listen  ",server);
+    console.log("Started to listen  ",port);
 })
 
 const update = async () => {
@@ -83,8 +96,14 @@ const update = async () => {
                 let messageOptions = {
                     from: process.env.EMAIL,
                     to: 'supernovahs@proton.me',
-                    subject: 'Scheduled Email',
-                    text: 'Hi there. This email was automatically sent by us.'
+                    subject: `Sloot:Change in storage slot!! `,
+                    text:
+                    `
+                    Contract Address : ${field[i].address} \n
+                    Slot: ${field[i].slot} \n
+                    Type: ${field[i].type} \n
+                    Changed from ${field[i].previous} to ${a} 
+                    `
                   };
                   
                   
