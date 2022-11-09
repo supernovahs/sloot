@@ -14,8 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const provider = new providers.JsonRpcProvider(process.env.RPC_MAINNET);
-var transporter = createTransport({
+var transporter = createTransport({ 
     service: 'gmail',
     auth: {
       user: process.env.EMAIL,
@@ -25,7 +24,7 @@ var transporter = createTransport({
 // ...
 
 // Schedule tasks to be run on the server.
-schedule('* * * * * ', function() {
+schedule('0,15,30,45 * * * *', function() {
     update();
   });
 
@@ -35,13 +34,15 @@ app.post("/post",async(req,res)=>{
     const slot = req.body.Slot;
     const type = req.body.Type;
     const email = req.body.email;
-    console.log(`previous ${previous} address ${ContractAddress} slot ${slot} type ${type}`);
+    const network = req.body.Network;
+
+    console.log(`network ${network} previous ${previous} address ${ContractAddress} slot ${slot} type ${type}`);
     // New DB 
     const uri = process.env.DATABASE_URI;
     const client = new MongoClient(uri);
     const database = client.db('sloot');
     const fields = database.collection('slot');
-    var fld = {email:email,address:ContractAddress,slot:slot,previous:previous,type:type}
+    var fld = {network : network,email:email,address:ContractAddress,slot:slot,previous:previous,type:type}
     fields.insertOne(fld, function(err,res) {
         if (err) throw err;
         console.log("Added new Entry!!");
@@ -60,7 +61,6 @@ app.post("/remove",async(req,res)=>{
 app.post("/replace",async(req,res)=>{
     const {previous,address,slot,type} = req.body;
     console.log(`previous ${previous} address ${address} slot ${slot} type ${type}`);
-
     // New DB 
 })
 
@@ -81,12 +81,12 @@ const update = async () => {
         let a;
         for(let i =0; i< field.length; i++){
           
-             a = await UpdateSlot(field[i].previous,field[i].address,field[i].slot,field[i].type);
+             a = await UpdateSlot(field[i].network,field[i].previous,field[i].address,field[i].slot,field[i].type);
             console.log("a",a);
             if(a !=0 ){
                 console.log("CHANGE IN SLOT!!!!!!!");
                 // Update db
-                let newval = {$set: {email:field[i].email,address:field[i].address,slot:field[i].slot,previous:a,type:field[i].type}};
+                let newval = {$set: {network : field[i].network,email:field[i].email,address:field[i].address,slot:field[i].slot,previous:a,type:field[i].type}};
                 fields.updateOne(field[i],newval,function(err,re){
                     if(err) throw err;
                     console.log("Updated successfully");
@@ -99,13 +99,13 @@ const update = async () => {
                     subject: `Sloot:Change in storage slot!! `,
                     text:
                     `
+                    Network:${field[i].network} \n
                     Contract Address : ${field[i].address} \n
                     Slot: ${field[i].slot} \n
                     Type: ${field[i].type} \n
                     Changed from ${field[i].previous} to ${a} 
                     `
                   };
-                  
                   
                   transporter.sendMail(messageOptions, function(error, info) {
                     if (error) {
@@ -122,7 +122,17 @@ const update = async () => {
 }
 update();
 
-const UpdateSlot = async (previous,address,slot,Type) =>{
+const UpdateSlot = async (network,previous,address,slot,Type) =>{
+    let provider;
+
+    if(network == "mainnet"){
+         provider = new providers.JsonRpcProvider(process.env.RPC_MAINNET);
+    }
+
+    else if (network == "goerli"){
+        provider = new providers.JsonRpcProvider(process.env.RPC_GOERLI);
+    }
+
     let res = await provider.getStorageAt(address,BigNumber.from(slot).toHexString());
 
     if(Type == "address"){
@@ -135,11 +145,7 @@ const UpdateSlot = async (previous,address,slot,Type) =>{
         return previous ===  (BigNumber.from(z[0]).toString()) ? 0 : (BigNumber.from(z[0]).toString());
     }
     if(Type  == "string"){
-        console.log("isstring");
-        console.log("previous",previous);
-        console.log("res",res);
         let z = utils.toUtf8String(res);
-        console.log("New",z);
         return previous === z ? 0 : z;
     }
 }
