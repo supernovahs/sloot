@@ -16,35 +16,38 @@ const Home: NextPage = () => {
   const provider = useProvider();
   const [Processing, SetProcessing] = useState<boolean>(false);
   const [email,SetEmail] = useState<string>();
+
   const handleChange = (event:any) => {
     SetType(event.target.value)
   }
 
   return (
     <div>
+      <div className='border-2 border-sky-500'>
       <Input
         placeholder='ContractAddress'
         value = {ContractAddress}
         onChange= {e => SetContractAddress(e.target.value)}
-      />
+        />
       <Input
         placeholder='Slot'
         value = {Slot!}
         onChange= {e => SetSlot(e.target.value)}
-      />
+        />
       <Select
       value={Type}
       onChange={handleChange}
       placeholder="Select Option"
-    >
+      >
       <option value='address' >Address</option>
       <option value='uint'> uint</option>
+      <option value="string">string</option>
       </Select>
       <Input
         placeholder='Email address'
         value = {email}
         onChange= {e => SetEmail(e.target.value)}
-      />
+        />
       <Button
         onClick={async() =>{
           SetProcessing(!Processing);
@@ -55,19 +58,11 @@ const Home: NextPage = () => {
           const a = await provider.getStorageAt(ContractAddress,ethers.BigNumber.from(Slot).toHexString());
           console.log("a",a);
           if(Type == "address"){
-
+            
             const decodedval = ethers.utils.defaultAbiCoder.decode(["address"],a);
-            SetResult(decodedval[0]);
+            let Result:any = decodedval[0];
             console.log("decodedvalue",decodedval);
             console.log("Contractaddress",ContractAddress);
-            console.log("result",Result);
-          }
-           if (Type == "uint"){
-            const decodedval = ethers.utils.defaultAbiCoder.decode(["uint"],a);
-            SetResult(ethers.BigNumber.from(decodedval[0]).toString());
-            console.log("decodedval",ethers.BigNumber.from(decodedval[0]).toString());
-          }
-          console.log("Result",Result,"COntract",ContractAddress,"slot",Slot,"type",Type);
           const {status} = await fetch(`${BACKEND_URL}post`,{
             method:"POST",
             headers:{"Content-Type": "application/json"},
@@ -81,10 +76,52 @@ const Home: NextPage = () => {
           })
           console.log("status",status);
           SetProcessing(!Processing);
+          }
+          if (Type == "uint"){
+            const decodedval = ethers.utils.defaultAbiCoder.decode(["uint"],a);
+            let Result:string = ethers.BigNumber.from(decodedval[0]).toString();
+            console.log("decodedval",ethers.BigNumber.from(decodedval[0]).toString());
+
+            const {status} = await fetch(`${BACKEND_URL}post`,{
+              method:"POST",
+              headers:{"Content-Type": "application/json"},
+              body: JSON.stringify({
+                Result,
+                ContractAddress,
+                Slot,
+                Type,
+                email
+              })
+            })
+            console.log("status",status);
+            SetProcessing(!Processing);
+            
+          }
+          if(Type == "string"){
+            const decodedval = ethers.utils.toUtf8String(a);
+            console.log("Decoded Value string",decodedval);
+            let Result:string = decodedval;
+ 
+            const {status} = await fetch(`${BACKEND_URL}post`,{
+              method:"POST",
+              headers:{"Content-Type": "application/json"},
+              body: JSON.stringify({
+                Result,
+                ContractAddress,
+                Slot,
+                Type,
+                email
+              })
+            })
+            console.log("status",status);
+            SetProcessing(!Processing);
+          }
+          
         }}
-      >
+        >
         Go
       </Button>
+        </div>
       <h4>{Result}</h4>
     </div>
   );

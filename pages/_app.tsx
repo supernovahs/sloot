@@ -10,7 +10,7 @@ import { ChakraProvider } from '@chakra-ui/react'
 
 const { chains, provider, webSocketProvider } = configureChains(
   [
-    chain.mainnet
+    chain.mainnet,chain.goerli
   ],
   [
     alchemyProvider({

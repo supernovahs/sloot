@@ -25,7 +25,7 @@ var transporter = createTransport({
 // ...
 
 // Schedule tasks to be run on the server.
-schedule('0,15,30,45 * * * *', function() {
+schedule('* * * * * ', function() {
     update();
   });
 
@@ -133,6 +133,14 @@ const UpdateSlot = async (previous,address,slot,Type) =>{
     if(Type == "uint"){
         let z = utils.defaultAbiCoder.decode(["uint"],res);
         return previous ===  (BigNumber.from(z[0]).toString()) ? 0 : (BigNumber.from(z[0]).toString());
+    }
+    if(Type  == "string"){
+        console.log("isstring");
+        console.log("previous",previous);
+        console.log("res",res);
+        let z = utils.toUtf8String(res);
+        console.log("New",z);
+        return previous === z ? 0 : z;
     }
 }
 
