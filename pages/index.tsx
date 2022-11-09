@@ -74,8 +74,6 @@ const Home: NextPage = () => {
             
             const decodedval = ethers.utils.defaultAbiCoder.decode(["address"],a);
             let Result:any = decodedval[0];
-            console.log("decodedvalue",decodedval);
-            console.log("Contractaddress",ContractAddress);
           const {status} = await fetch(`${BACKEND_URL}post`,{
             method:"POST",
             headers:{"Content-Type": "application/json"},
@@ -100,6 +98,7 @@ const Home: NextPage = () => {
               method:"POST",
               headers:{"Content-Type": "application/json"},
               body: JSON.stringify({
+                Network,
                 Result,
                 ContractAddress,
                 Slot,
@@ -120,6 +119,7 @@ const Home: NextPage = () => {
               method:"POST",
               headers:{"Content-Type": "application/json"},
               body: JSON.stringify({
+                Network,
                 Result,
                 ContractAddress,
                 Slot,
@@ -130,7 +130,6 @@ const Home: NextPage = () => {
             console.log("status",status);
             SetProcessing(!Processing);
           }
-          
         }}
         >
         Go
