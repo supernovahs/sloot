@@ -16,14 +16,27 @@ const Home: NextPage = () => {
   const provider = useProvider();
   const [Processing, SetProcessing] = useState<boolean>(false);
   const [email,SetEmail] = useState<string>();
+  const [Network,SetNetwork] = useState<string>();
 
   const handleChange = (event:any) => {
     SetType(event.target.value)
   }
 
+  const handleNetwork = (event:any) =>{
+    SetNetwork(event.target.value);
+  } 
+
   return (
     <div>
       <div className='border-2 border-sky-500'>
+      <Select
+      value={Network}
+      onChange={handleNetwork}
+      placeholder="Select Network"
+      >
+      <option value='mainnet' >Mainnet</option>
+      <option value='goerli'> Goerli</option>
+      </Select>
       <Input
         placeholder='ContractAddress'
         value = {ContractAddress}
@@ -67,6 +80,7 @@ const Home: NextPage = () => {
             method:"POST",
             headers:{"Content-Type": "application/json"},
             body: JSON.stringify({
+              Network,
               Result,
               ContractAddress,
               Slot,
