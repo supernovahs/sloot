@@ -5,6 +5,7 @@ import { Input,Button } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useProvider } from 'wagmi'
 import { Select } from '@chakra-ui/react';
+import { useSigner } from 'wagmi';
 const ethers = require("ethers");
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL_SLOOT;
 
@@ -17,7 +18,7 @@ const Home: NextPage = () => {
   const [Processing, SetProcessing] = useState<boolean>(false);
   const [email,SetEmail] = useState<string>();
   const [Network,SetNetwork] = useState<string>();
-
+  const { data: signer, isError, isLoading } = useSigner();
   const handleChange = (event:any) => {
     SetType(event.target.value)
   }
@@ -71,7 +72,6 @@ const Home: NextPage = () => {
           const a = await provider.getStorageAt(ContractAddress,ethers.BigNumber.from(Slot).toHexString());
           console.log("a",a);
           if(Type == "address"){
-            
             const decodedval = ethers.utils.defaultAbiCoder.decode(["address"],a);
             let Result:any = decodedval[0];
           const {status} = await fetch(`${BACKEND_URL}post`,{
@@ -108,7 +108,6 @@ const Home: NextPage = () => {
             })
             console.log("status",status);
             SetProcessing(!Processing);
-            
           }
           if(Type == "string"){
             const decodedval = ethers.utils.toUtf8String(a);

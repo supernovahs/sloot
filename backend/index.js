@@ -14,6 +14,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const mainnetprovider =  new providers.JsonRpcProvider(process.env.RPC_MAINNET);
+const goerliprovider = new providers.JsonRpcProvider(process.env.RPC_GOERLI);
+
 var transporter = createTransport({ 
     service: 'gmail',
     auth: {
@@ -69,7 +72,6 @@ app.listen(port, () => {
 })
 
 const update = async () => {
-    console.log("process",process.env.DATABASE_URI);
     const uri = process.env.DATABASE_URI;
     const client = new MongoClient(uri);
     const database = client.db('sloot');
@@ -80,8 +82,12 @@ const update = async () => {
        
         let a;
         for(let i =0; i< field.length; i++){
-          
-             a = await UpdateSlot(field[i].network,field[i].previous,field[i].address,field[i].slot,field[i].type);
+          try{
+            
+              a = await UpdateSlot(field[i].network,field[i].previous,field[i].address,field[i].slot,field[i].type);
+            }catch(err){
+                console.log("error in updating");
+            }
             console.log("a",a);
             if(a !=0 ){
                 console.log("CHANGE IN SLOT!!!!!!!");
@@ -123,17 +129,15 @@ const update = async () => {
 update();
 
 const UpdateSlot = async (network,previous,address,slot,Type) =>{
-    let provider;
-
+   
+ let res;
+ console.log("slot",slot);
     if(network == "mainnet"){
-         provider = new providers.JsonRpcProvider(process.env.RPC_MAINNET);
+     res = await mainnetprovider.getStorageAt(address,BigNumber.from(slot).toHexString());
     }
-
-    else if (network == "goerli"){
-        provider = new providers.JsonRpcProvider(process.env.RPC_GOERLI);
+    if(network === "goerli"){
+        res = await goerliprovider.getStorageAt(address,BigNumber.from(slot).toHexString());
     }
-
-    let res = await provider.getStorageAt(address,BigNumber.from(slot).toHexString());
 
     if(Type == "address"){
         let z = utils.defaultAbiCoder.decode(["address"],res);
