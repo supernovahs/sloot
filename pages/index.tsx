@@ -6,10 +6,12 @@ import { useState } from 'react';
 import { useProvider } from 'wagmi'
 import { Select } from '@chakra-ui/react';
 import { useSigner } from 'wagmi';
+import { useColorMode } from '@chakra-ui/react';
 const ethers = require("ethers");
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL_SLOOT;
 
 const Home: NextPage = () => {
+  const { toggleColorMode } = useColorMode();
   const [ContractAddress,SetContractAddress] = useState<string>("");
   const [Slot,SetSlot] = useState<string | null>();
   const [Type,SetType] = useState< string >();
@@ -29,7 +31,13 @@ const Home: NextPage = () => {
 
   return (
     <div>
+      <div className='flex-box'>
+
+      <Button onClick = {toggleColorMode}> Change Theme</Button>
+      </div>
       <div className='border-2 border-sky-500'>
+        <div className='m-6'>
+
       <Select
       value={Network}
       onChange={handleNetwork}
@@ -38,16 +46,27 @@ const Home: NextPage = () => {
       <option value='mainnet' >Mainnet</option>
       <option value='goerli'> Goerli</option>
       </Select>
+      </div>
+      <div
+      className='m-6'
+      >
+
       <Input
         placeholder='ContractAddress'
         value = {ContractAddress}
         onChange= {e => SetContractAddress(e.target.value)}
         />
+        </div>
+        <div className='m-6'>
+          
       <Input
         placeholder='Slot'
         value = {Slot!}
         onChange= {e => SetSlot(e.target.value)}
         />
+        </div>
+        <div className='m-6'>
+
       <Select
       value={Type}
       onChange={handleChange}
@@ -57,11 +76,15 @@ const Home: NextPage = () => {
       <option value='uint'> uint</option>
       <option value="string">string</option>
       </Select>
+        </div>
+        <div className='m-6'>
+
       <Input
         placeholder='Email address'
         value = {email}
         onChange= {e => SetEmail(e.target.value)}
         />
+        </div>
       <Button
         onClick={async() =>{
           SetProcessing(!Processing);
