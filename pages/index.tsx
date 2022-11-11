@@ -75,6 +75,7 @@ const Home: NextPage = () => {
       <option value='address' >Address</option>
       <option value='uint'> uint</option>
       <option value="string">string</option>
+      <option value="bytes32">bytes32</option>
       </Select>
         </div>
         <div className='m-6'>
@@ -152,6 +153,28 @@ const Home: NextPage = () => {
             console.log("status",status);
             SetProcessing(!Processing);
           }
+          // if(Type == "bytes32"){
+          //   console.log("encoded value bytes32",a);
+          //   const decodedval = ethers.utils.defaultAbiCoder.decode(["bytes32"],a);
+          //   console.log("decodedval bytes32",decodedval);
+            // console.log("Decoded Value string",decodedval);
+            // let Result:string = decodedval;
+ 
+            // const {status} = await fetch(`${BACKEND_URL}post`,{
+            //   method:"POST",
+            //   headers:{"Content-Type": "application/json"},
+            //   body: JSON.stringify({
+            //     Network,
+            //     Result,
+            //     ContractAddress,
+            //     Slot,
+            //     Type,
+            //     email
+            //   })
+            // })
+            // console.log("status",status);
+            // SetProcessing(!Processing);
+          // }
         }}
         >
         Go
