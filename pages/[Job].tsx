@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { useRouter } from "next/router";
 import { useCallback } from 'react';
 import { useEffect } from 'react';
+import { BACKEND_URL } from '.';
+import { Button } from '@chakra-ui/react';
 export default function Job() { 
     const [Jobs,SetJobs] = useState<any>("");
     const router = useRouter();
@@ -24,8 +26,26 @@ export default function Job() {
         up();
     },[Job])
     
+    const fetchdata = async () =>{
+        let address = 23e23;
+        const {status} = await fetch(`${BACKEND_URL}get`,{
+            method:"POST",
+            headers:{"Content-Type": "application/json"},
+            body: JSON.stringify({
+              address
+            })
+        })
+    }
   return (
+
+
+    
       <div>
+        <Button
+        onClick={fetchdata}
+        >
+Click
+        </Button>
         Job
         </div>
   )

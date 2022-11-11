@@ -8,7 +8,7 @@ import { Select } from '@chakra-ui/react';
 import { useSigner } from 'wagmi';
 import { useColorMode } from '@chakra-ui/react';
 const ethers = require("ethers");
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL_SLOOT;
+export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL_SLOOT;
 
 const Home: NextPage = () => {
   const { toggleColorMode } = useColorMode();

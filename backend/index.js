@@ -13,6 +13,18 @@ const port =process.env.PORT || 49899;
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(function (req, res, next) {
+
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+    res.setHeader('Access-Control-Allow-Headers', 'application/json,Content-Type');
+
+    // Pass to next layer of middleware
+    next();
+});
 
 const mainnetprovider =  new providers.JsonRpcProvider(process.env.RPC_MAINNET);
 const goerliprovider = new providers.JsonRpcProvider(process.env.RPC_GOERLI);
@@ -68,7 +80,17 @@ app.post("/replace",async(req,res)=>{
 })
 
 // app.post("/get",async(req,res)=>{
-    
+//     const {WalletAddress} = req.body.address;
+//     console.log("Wallet_address",WalletAddress);
+//     const uri = process.env.DATABASE_URI;
+//     const client = new MongoClient(uri);
+//     const database = client.db('sloot');
+//     const fields = database.collection('slot');
+    // const query = {network : "goerli"};
+
+    // const a = fields.find(query);
+    // console.log("a");
+
 // })
 
 app.listen(port, () => {
